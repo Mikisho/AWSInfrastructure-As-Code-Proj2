@@ -74,6 +74,22 @@ Parameters:
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
 
 Resources:
+  #instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
+  # ProfileWithRolesForOurApp:
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties:
+  #     Roles:
+  #       - UdacityS3ReadOnlyEC2
+
+  #         #!/bin/bash
+  #         apt-get update -y
+  #         apt-get install unzip awscli -y
+  #         apt-get install apache2 -y
+  #         systemctl start apache2.service
+  #         cd /var/www/html
+  #         aws s3 cp s3://udacity-demo-1/udacity.zip .
+  #         unzip -o udacity.zip
+
   Vpc:
     Type: AWS::EC2::VPC
     Properties:
@@ -81,8 +97,8 @@ Resources:
       EnableDnsHostnames: true
       EnableDnsSupport: true
       Tags:
-        - Key: Name
-          Value: !Ref MyEnvironmentName
+       - Key: Name
+         Value: !Ref MyEnvironmentName
 
   PublicSubnet1:
     Type: AWS::EC2::Subnet
@@ -95,8 +111,8 @@ Resources:
       VpcId: !Ref Vpc
       MapPublicIpOnLaunch: true
       Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+       - Key: Name
+         Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
 
   PublicSubnet2:
     Type: AWS::EC2::Subnet
@@ -109,8 +125,8 @@ Resources:
       VpcId: !Ref Vpc
       MapPublicIpOnLaunch: true
       Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+       - Key: Name
+         Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
 
   PrivateSubnet1:
     Type: AWS::EC2::Subnet
@@ -123,8 +139,8 @@ Resources:
       VpcId: !Ref Vpc
       MapPublicIpOnLaunch: false
       Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
+       - Key: Name
+         Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
 
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
@@ -137,8 +153,8 @@ Resources:
       VpcId: !Ref Vpc
       MapPublicIpOnLaunch: false
       Tags:
-        - Key: Name
-          Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
+       - Key: Name
+         Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
 
   IntGateway:
     Type: AWS::EC2::InternetGateway
@@ -146,8 +162,8 @@ Resources:
       - Vpc
     Properties:
       Tags:
-        - Key: Name
-          Value: !Ref EnvironmentName
+       - Key: Name
+         Value: !Ref EnvironmentName
 
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
