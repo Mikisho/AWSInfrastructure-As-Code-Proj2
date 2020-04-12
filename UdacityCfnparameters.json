@@ -4,11 +4,11 @@
     },
     {
         "ParameterKey": "MysubnetAZ1",
-        "ParameterValue": "Subnet 1 availability zone"
+        "ParameterValue": "us-east-1a"
     },
     {
         "ParameterKey": "MysubnetAZ2",
-        "ParameterValue": "Subnet 2 availability zone"
+        "ParameterValue": "us-east-2a"
     },
     {
         "ParameterKey": "MyInstanceType",
