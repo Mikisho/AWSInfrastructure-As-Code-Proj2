@@ -308,7 +308,7 @@ Outputs:
   MyPublicSubnet2:
     Description: Public Subnet IDs Created for VPC 
     Value: !Ref MyPublicSubnet2
-     Export:
+    Export:
       Name: !Sub ${MyEnvironmentName}-PUB-CidrBlock2
 
   MyPrivateSubnet1:
