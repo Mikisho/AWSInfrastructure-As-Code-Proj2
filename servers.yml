@@ -210,4 +210,4 @@ Outputs:
     Description: Private Subnets Created for VPC
     Value: !Join [",",[ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]
     Export:
-      Name: !Sub ${MyEnvironmentName}-PUB-SNETS 
+      Name: !Sub ${MyEnvironmentName}-PRI-SNETS 
