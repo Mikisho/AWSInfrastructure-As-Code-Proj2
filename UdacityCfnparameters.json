@@ -1,0 +1,37 @@
+[{
+        "ParameterKey": "MyEnvironmentName",
+        "ParameterValue": "UdacityCfnProject"
+    },
+    {
+        "ParameterKey": "MysubnetAZ1",
+        "ParameterValue": "Subnet 1 availability zone"
+    },
+    {
+        "ParameterKey": "MysubnetAZ2",
+        "ParameterValue": "Subnet 2 availability zone"
+    },
+    {
+        "ParameterKey": "MyInstanceType",
+        "ParameterValue": "t3.small"
+    },
+    {
+        "ParameterKey": "MyVpc",
+        "ParameterValue": "10.0.0.0/16"
+    },
+    {
+        "ParameterKey": "MyPublicSubnet1",
+        "ParameterValue": "10.0.0.0/24"
+    },
+    {
+        "ParameterKey": "MyPublicSubnet2",
+        "ParameterValue": "10.0.1.0/24"
+    },
+    {
+        "ParameterKey": "MyPrivateSubnet1",
+        "ParameterValue": "10.0.2.0/24"
+    },
+    {
+        "ParameterKey": "MyPrivateSubnet2",
+        "ParameterValue": "10.0.3.0/24"
+    }
+]

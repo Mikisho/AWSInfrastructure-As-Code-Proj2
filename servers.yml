@@ -1,21 +1,221 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+    Mikias Hundie
+    Udacity Project Deploy a High-Availability Web App using CloudFormation
+
 Parameters:
 # whatever you consider a changing value, put it as a parameter instead of hard-coding it into your script
+  MyEnvironmentName:
+    Description: An Environment name that will be prefixed to resources
+    Type: String
+  
+  MysubnetAZ1:
+    Description: Select an Availability Zone
+    Type: String
+    Default: us-east-1a
+    AllowedValues:
+      - us-east-1a
+      - us-east-1b
+      - us-east-1c
+
+  MysubnetAZ2:
+    Description: Select an Availability Zone
+    Type: String
+    Default: us-east-2a
+    AllowedValues:
+      - us-east-2a
+      - us-east-2b
+      - us-east-2c
+
+  # MyInstanceType:
+  #   Description: Select an EC2 Instance Type
+  #   Type: String
+  #   Default: t3.small
+  #   AllowedValues:
+  #     - t3.small
+  #     - t2.medium
+  #     - t2.small
+  
+  MyVpc:
+    Description: VPC CIDR block.
+    Type: String 
+    Default: 10.0.0.0/16
+    AllowedPattern: (\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x
+
+  MyPublicSubnet1:
+    Description: Public Subnet 1 CIDR block
+    Type: String
+    Default: 10.0.0.0/24
+    AllowedPattern: (\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
+  
+  MyPublicSubnet2:
+    Description: Public Subnet 2 CIDR block
+    Type: String
+    Default: 10.0.1.0/24
+    AllowedPattern: (\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
+  
+  MyPrivateSubnet1:
+    Description: Private Subnet 1 CIDR block
+    Type: String
+    Default: 10.0.2.0/24
+    AllowedPattern: (\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
+
+  MyPrivateSubnet2:
+    Description: Private Subnet 1 CIDR block
+    Type: String
+    Default: 10.0.3.0/24
+    AllowedPattern: (\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})
+    ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
 
 Resources:
   #instace profile contains the IAM Role name(s) that we want to associate to our auto scaling EC2 Servers
-  ProfileWithRolesForOurApp:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      Roles:
-        - UdacityS3ReadOnlyEC2
+  # ProfileWithRolesForOurApp:
+  #   Type: AWS::IAM::InstanceProfile
+  #   Properties: 
+  #     Roles:
+  #       - UdacityS3ReadOnlyEC2
   
-          #!/bin/bash
-          apt-get update -y
-          apt-get install unzip awscli -y
-          apt-get install apache2 -y
-          systemctl start apache2.service
-          cd /var/www/html
-          aws s3 cp s3://udacity-demo-1/udacity.zip .
-          unzip -o udacity.zip
+  #         #!/bin/bash
+  #         apt-get update -y
+  #         apt-get install unzip awscli -y
+  #         apt-get install apache2 -y
+  #         systemctl start apache2.service
+  #         cd /var/www/html
+  #         aws s3 cp s3://udacity-demo-1/udacity.zip .
+  #         unzip -o udacity.zip
+
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: !Ref MyVpc
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: !Ref MyEnvironmentName
+  
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+      - Vpc 
+      - InternetGatewayAttachment
+    Properties:
+      CidrBlock: !Ref MyPublicSubnet1
+      AvailabilityZone: !Ref MysubnetAZ1
+      VpcId: !Ref Vpc
+      MapPublicIpOnLaunch: true
+      Tags: 
+         - Key: Name
+           Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+  
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+      - Vpc 
+      - InternetGatewayAttachment
+    Properties:
+      CidrBlock: !Ref MyPublicSubnet2
+      AvailabilityZone: !Ref MysubnetAZ2
+      VpcId: !Ref Vpc
+      MapPublicIpOnLaunch: true
+      Tags: 
+         - Key: Name
+           Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+      - Vpc 
+      - InternetGatewayAttachment
+    Properties:
+      CidrBlock: !Ref MyPrivateSubnet1
+      AvailabilityZone: !Ref MysubnetAZ1
+      VpcId: !Ref Vpc
+      MapPublicIpOnLaunch: false
+      Tags: 
+         - Key: Name
+           Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+      - Vpc 
+      - InternetGatewayAttachment
+    Properties:
+      CidrBlock: !Ref MyPrivateSubnet2
+      AvailabilityZone: !Ref MysubnetAZ2
+      VpcId: !Ref Vpc
+      MapPublicIpOnLaunch: false
+      Tags: 
+         - Key: Name
+           Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
+
+  IntGateway:
+    Type: AWS::EC2::InternetGateway
+    DependsOn:
+      - Vpc 
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    DependsOn:
+      - Vpc 
+      - IntGateway 
+    Properties:
+      VpcId: !Ref Vpc
+      InternetGatewayId: !Ref IntGateway  
+
+  NatGatewayEIPAZ1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+    DependsOn:
+      - InternetGatewayAttachment
+  
+  NatGatewayAZ1:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayEIPAZ1.AllocationId
+      SubnetId: !Ref PublicSubnet1
+  
+  NatGatewayEIPAZ2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+    DependsOn:
+      - InternetGatewayAttachment
+
+  NatGatewayAZ2:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt NatGatewayEIPAZ2.AllocationId
+      SubnetId: !Ref PublicSubnet2
+
   Outputs: 
   #Bonus points for useful outputs!
+    Vpc:
+      Description: VPC
+      Value: !Ref Vpc 
+      Export: 
+        Name: !Sub ${MyEnvironmentName}-VPCID 
+    
+    MysubnetAZ1:
+      Descriptoin: Availability Zone 1
+      Value: !GetAtt 
+        - PublicSubnet1
+        - AvailabilityZone
+
+    MysubnetAZ2:
+      Descriptoin: Availability Zone 2
+      Value: !GetAtt 
+        - PublicSubnet2
+        - AvailabilityZone
