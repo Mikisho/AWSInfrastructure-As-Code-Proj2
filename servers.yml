@@ -202,7 +202,7 @@ Resources:
 
   Outputs:
     #Bonus points for useful outputs!
-    Vpc:
+    VPC:
       Description: VPC
       Value: !Ref VPC
       Export:
