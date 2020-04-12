@@ -48,7 +48,9 @@ Parameters:
   MyPublicSubnet1:
     Description: Public Subnet 1 CIDR block
     Type: String
-    Default: 10.0.0.0/24
+    Default: 10.0.0.0/24 
+    MinLength: '10'
+    MaxLength: '18'
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
 
@@ -56,6 +58,8 @@ Parameters:
     Description: Public Subnet 2 CIDR block
     Type: String
     Default: 10.0.1.0/24
+    MinLength: '10'
+    MaxLength: '18'
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
 
@@ -63,6 +67,8 @@ Parameters:
     Description: Private Subnet 1 CIDR block
     Type: String
     Default: 10.0.2.0/24
+    MinLength: '10'
+    MaxLength: '18'
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
 
@@ -70,6 +76,8 @@ Parameters:
     Description: Private Subnet 1 CIDR block
     Type: String
     Default: 10.0.3.0/24
+    MinLength: '10'
+    MaxLength: '18'
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})"
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
 
@@ -184,6 +192,69 @@ Resources:
       AllocationId: !GetAtt NatGatewayEIPAZ2.AllocationId
       SubnetId: !Ref PublicSubnet2
 
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC 
+      Tags:
+       - Key: Name 
+         Value: !Sub ${MyEnvironmentName}-Public Routes
+  
+  RoutePublic:
+    Type: AWS::EC2::Route
+    DependsOn:
+      - PublicRouteTable
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      RouteTableId: !Ref PublicRouteTable
+      GatewayId: !Ref IntGateway
+
+  SubnetRouteTableAssociationPublic1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn:
+      - PublicRouteTable
+      - PublicSubnet1
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
+
+  SubnetRouteTableAssociationPublic2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn:
+      - PublicRouteTable
+      - PublicSubnet2
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC 
+      Tags:
+       - Key: Name 
+         Value: !Sub ${MyEnvironmentName}-Private Routes
+
+  SubnetRouteTableAssociationPrivate1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn:
+      - PrivateRouteTable
+      - PrivateSubnet1
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1 
+
+  SubnetRouteTableAssociationPrivate2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn:
+      - PrivateRouteTable
+      - PrivateSubnet2
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet2 
+
 Outputs:
   #Bonus points for useful outputs!
   VPC:
@@ -211,3 +282,27 @@ Outputs:
     Value: !Join [",",[ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]
     Export:
       Name: !Sub ${MyEnvironmentName}-PRI-SNETS 
+
+  PublicRouteTable:
+    Description: Public Route Table Created for VPC
+    Value: !Ref PublicRouteTable 
+
+  PrivateRouteTable:
+    Description: Private Route Table Created for VPC 
+    Value: !Ref PrivateRouteTable 
+
+  MyPublicSubnet1:
+    Description: Public Subnet IDs Created for VPC 
+    Value: !Ref MyPublicSubnet1
+
+  MyPublicSubnet2:
+    Description: Public Subnet IDs Created for VPC 
+    Value: !Ref MyPublicSubnet2 
+
+  MyPrivateSubnet1:
+    Description: Private Subnet IDs Created for VPC 
+    Value: !Ref MyPrivateSubnet1
+
+  MyPrivateSubnet2:
+    Description: Private Subnet IDs Created for VPC 
+    Value: !Ref MyPrivateSubnet2
