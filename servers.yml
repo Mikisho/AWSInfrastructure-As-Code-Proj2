@@ -74,16 +74,15 @@ Parameters:
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
 
 Resources:
-
   VPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref MyVpc
-      EnableDnsSupport: 'true'
-      EnableDnsHostnames: 'true'
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
       Tags:
-       - Key: Name
-         Value: !Ref MyEnvironmentName
+        - Key: Name
+          Value: !Ref MyEnvironmentName
 
   IntGateway:
     Type: AWS::EC2::InternetGateway
@@ -91,8 +90,8 @@ Resources:
       - VPC
     Properties:
       Tags:
-       - Key: Name
-         Value: !Ref MyEnvironmentName
+        - Key: Name
+          Value: !Ref MyEnvironmentName
 
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -102,3 +101,79 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref IntGateway
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+      - VPC
+      - InternetGatewayAttachment
+    Properties:
+      CidrBlock: !Ref MyPublicSubnet1
+      AvailabilityZone: !Ref MysubnetAZ1
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+      - VPC
+      - InternetGatewayAttachment
+    Properties:
+      CidrBlock: !Ref MyPublicSubnet2
+      AvailabilityZone: !Ref MysubnetAZ2
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+      - VPC
+      - InternetGatewayAttachment
+    Properties:
+      CidrBlock: !Ref MyPrivateSubnet1
+      AvailabilityZone: !Ref MysubnetAZ1
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn:
+      - VPC
+      - InternetGatewayAttachment
+    Properties:
+      CidrBlock: !Ref MyPrivateSubnet2
+      AvailabilityZone: !Ref MysubnetAZ2
+      VpcId: !Ref VPC
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
+
+Outputs:
+  #Bonus points for useful outputs!
+  VPC:
+    Description: VPC
+    Value: !Ref VPC
+    Export:
+      Name: !Sub ${MyEnvironmentName}-VPCID
+
+  MysubnetAZ1:
+    Descriptoin: Availability Zone 1
+    Value: !GetAtt
+      - PublicSubnet1
+      - AvailabilityZone
+
+  MysubnetAZ2:
+    Descriptoin: Availability Zone 2
+    Value: !GetAtt
+      - PublicSubnet2
+      - AvailabilityZone
