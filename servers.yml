@@ -74,6 +74,7 @@ Parameters:
     ConstraintDescription: Must be a valid IP CIDR range of the form x.x.x.x/x and subnet of VPC
 
 Resources:
+  
   VPC:
     Type: AWS::EC2::VPC
     Properties:
