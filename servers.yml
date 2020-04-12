@@ -94,11 +94,11 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref MyVpc
-      EnableDnsHostnames: 'true'
       EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
       Tags:
-       - Key: Name
-         Value: !Ref MyEnvironmentName
+      - Key: Name
+        Value: !Ref MyEnvironmentName
 
   PublicSubnet1:
     Type: AWS::EC2::Subnet
