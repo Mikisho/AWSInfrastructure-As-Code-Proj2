@@ -8,7 +8,7 @@
     },
     {
         "ParameterKey": "MysubnetAZ2",
-        "ParameterValue": "us-east-2a"
+        "ParameterValue": "us-east-1d"
     },
     {
         "ParameterKey": "MyVpc",
