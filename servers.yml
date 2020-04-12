@@ -265,11 +265,15 @@ Outputs:
 
   MysubnetAZ1:
     Description: Availability Zone 1
-    Value: !GetAtt PublicSubnet1.AvailabilityZone
+    Value: !GetAtt PublicSubnet1.AvailabilityZone 
+    Export:
+      Name: !Sub ${MyEnvironmentName}-AZ1
 
   MysubnetAZ2:
    Description: Availability Zone 2
    Value: !GetAtt PublicSubnet2.AvailabilityZone
+   Export:
+      Name: !Sub ${MyEnvironmentName}-AZ2
 
   PublicSubnets:
     Description: Public Subnets Created for VPC
@@ -286,23 +290,35 @@ Outputs:
   PublicRouteTable:
     Description: Public Route Table Created for VPC
     Value: !Ref PublicRouteTable 
+    Export:
+      Name: !Sub ${MyEnvironmentName}-PUB-RTB
 
   PrivateRouteTable:
     Description: Private Route Table Created for VPC 
     Value: !Ref PrivateRouteTable 
+    Export:
+      Name: !Sub ${MyEnvironmentName}-PRI-RTB
 
   MyPublicSubnet1:
     Description: Public Subnet IDs Created for VPC 
     Value: !Ref MyPublicSubnet1
+    Export:
+      Name: !Sub ${MyEnvironmentName}-PUB-CidrBlock1
 
   MyPublicSubnet2:
     Description: Public Subnet IDs Created for VPC 
-    Value: !Ref MyPublicSubnet2 
+    Value: !Ref MyPublicSubnet2
+     Export:
+      Name: !Sub ${MyEnvironmentName}-PUB-CidrBlock2
 
   MyPrivateSubnet1:
     Description: Private Subnet IDs Created for VPC 
     Value: !Ref MyPrivateSubnet1
+    Export:
+      Name: !Sub ${MyEnvironmentName}-PRI-CidrBlock3
 
   MyPrivateSubnet2:
     Description: Private Subnet IDs Created for VPC 
     Value: !Ref MyPrivateSubnet2
+    Export:
+      Name: !Sub ${MyEnvironmentName}-PRI-CidrBlock4
