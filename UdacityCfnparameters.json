@@ -11,10 +11,6 @@
         "ParameterValue": "us-east-2a"
     },
     {
-        "ParameterKey": "MyInstanceType",
-        "ParameterValue": "t3.small"
-    },
-    {
         "ParameterKey": "MyVpc",
         "ParameterValue": "10.0.0.0/16"
     },
