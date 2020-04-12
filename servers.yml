@@ -168,12 +168,8 @@ Outputs:
 
   MysubnetAZ1:
     Description: Availability Zone 1
-    Value: !GetAtt
-      - PublicSubnet1
-      - AvailabilityZone
+    Value: !GetAtt PublicSubnet1.AvailabilityZone
 
   MysubnetAZ2:
    Description: Availability Zone 2
-    Value: !GetAtt
-      - PublicSubnet2
-      - AvailabilityZone
+    Value: !GetAtt PublicSubnet2.AvailabilityZone
