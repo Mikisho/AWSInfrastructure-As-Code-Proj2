@@ -167,13 +167,13 @@ Outputs:
       Name: !Sub ${MyEnvironmentName}-VPCID
 
   MysubnetAZ1:
-    Descriptoin: Availability Zone 1
+    Description: Availability Zone 1
     Value: !GetAtt
       - PublicSubnet1
       - AvailabilityZone
 
   MysubnetAZ2:
-    Descriptoin: Availability Zone 2
+   Description: Availability Zone 2
     Value: !GetAtt
       - PublicSubnet2
       - AvailabilityZone
