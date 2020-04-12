@@ -94,7 +94,6 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: !Ref MyVpc
-      EnableDnsHostnames: true
       EnableDnsSupport: true
       Tags:
        - Key: Name
