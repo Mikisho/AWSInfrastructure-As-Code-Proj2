@@ -172,4 +172,4 @@ Outputs:
 
   MysubnetAZ2:
    Description: Availability Zone 2
-    Value: !GetAtt PublicSubnet2.AvailabilityZone
+   Value: !GetAtt PublicSubnet2.AvailabilityZone
