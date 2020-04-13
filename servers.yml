@@ -310,8 +310,7 @@ Resources:
           apt-get install apache2 -y
           systemctl start apache2.service
           cd /var/www/html
-          aws s3 cp s3://udacity-demo-1/udacity.zip .
-          unzip -o udacity.zip
+          aws s3 cp s3://mikias-udacity-proj2/index.html .
       ImageId: ami-07ebfd5b3428b6f4d
       SecurityGroups:
         - Ref: WebAppSG
