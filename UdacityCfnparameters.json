@@ -29,5 +29,9 @@
     {
         "ParameterKey": "MyPrivateSubnet2",
         "ParameterValue": "10.0.3.0/24"
+    },
+    {
+        "ParameterKey": "MyInstanceType",
+        "ParameterValue": "t3.small"
     }
 ]

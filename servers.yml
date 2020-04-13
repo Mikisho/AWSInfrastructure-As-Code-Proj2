@@ -29,14 +29,14 @@ Parameters:
       - us-east-1e
       - us-east-1f
 
-  # MyInstanceType:
-  #   Description: Select an EC2 Instance Type
-  #   Type: String
-  #   Default: t3.small
-  #   AllowedValues:
-  #     - t3.small
-  #     - t2.medium
-  #     - t2.small
+  MyInstanceType:
+    Description: Select an EC2 Instance Type
+    Type: String
+    Default: t3.small
+    AllowedValues:
+      - t3.small
+      - t2.medium
+      - t2.small
 
   MyVpc:
     Description: VPC CIDR block 10.0.0.0/16 = 10.0.0.0-10.0.255.255 = 256 Subnets = 65534 hosts.
@@ -292,7 +292,88 @@ Resources:
         FromPort: 0
         ToPort: 65535
         CidrIp: 0.0.0.0/0
+  
+  WebAppLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install awscli -y
+          apt-get install apache2 -y
+          cd /var/www/html 
+          aws s3 cp s3://mikias-udacity-proj2/index.html
+          systemctl start apache2.service
+      ImageId: ami-07ebfd5b3428b6f4d
+      SecurityGroups:
+        - Ref: WebAppSG
+      InstanceType: !Ref MyInstanceType
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sdk" 
+          Ebs:
+            VolumeSize: '10' 
 
+  WebAppGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - Ref: PrivateSubnet1
+        - Ref: PrivateSubnet2
+      LaunchConfigurationName: 
+        Ref: WebAppLaunchConfig
+      MinSize: "4"
+      MaxSize: "4" 
+      TargetGroupARNs: 
+        - Ref: WebAppTargetGroup
+
+  WebAppELB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - PublicSubnet1
+        - PublicSubnet2
+      SecurityGroups: 
+        - Ref: WEBLoadBalncerSG
+  
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: 
+            Ref: WebAppTargetGroup
+      LoadBalancerArn: 
+        Ref: WebAppELB
+      Port: 80
+      Protocol: HTTP
+  
+  ALBListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref WebAppTargetGroup
+      Conditions:
+        - Field: path-pattern
+          Values: [/]
+      ListenerArn: !Ref Listener
+      Priority: 1
+
+  WebAppTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 8
+      HealthyThresholdCount: 2
+      Port: 8080
+      Protocol: HTTP
+      UnhealthyThresholdCount: 5
+      VpcId: !Ref VPC
+
+    
 Outputs:
   #Bonus points for useful outputs!
   VPC:
@@ -372,3 +453,9 @@ Outputs:
     Value: !Ref WebAppSG 
     Export:
       Name: !Sub ${MyEnvironmentName}-WEBAPP-SG
+
+  LoadBanlancerEndpoint:
+    Description: Url to access end point
+    Value: !Join [ "", [ 'http://', !GetAtt WebAppELB.DNSName  ]]
+    Export:
+      Name: !Sub ${MyEnvironmentName}-WEBURL
