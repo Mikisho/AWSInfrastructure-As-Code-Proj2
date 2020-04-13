@@ -330,9 +330,7 @@ Resources:
   WebAppELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Subnets:
-        - PublicSubnet1
-        - PublicSubnet2
+      Subnets: [ !Ref PublicSubnet1, !Ref PublicSubnet2 ]
       SecurityGroups: 
         - Ref: WEBLoadBalncerSG
   
