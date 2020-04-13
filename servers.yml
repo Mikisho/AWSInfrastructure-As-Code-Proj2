@@ -298,7 +298,7 @@ Resources:
     Properties: 
       Path: "/"
       Roles:
-        - S3Role
+        - Ref: S3Role
 
   WebAppLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
