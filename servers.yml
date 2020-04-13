@@ -292,13 +292,18 @@ Resources:
         FromPort: 0
         ToPort: 65535
         CidrIp: 0.0.0.0/0
-
+        
   ProfileWithRolesForOurApp:
     Type: AWS::IAM::InstanceProfile
     Properties: 
       Roles:
         - UdacityProj2S3ReadOnlyEc2
-  
+
+  WebAppLaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
           apt-get install unzip awscli -y
@@ -307,10 +312,6 @@ Resources:
           cd /var/www/html
           aws s3 cp s3://udacity-demo-1/udacity.zip .
           unzip -o udacity.zip
-
-  WebAppLaunchConfig:
-    Type: AWS::AutoScaling::LaunchConfiguration
-    Properties:
       ImageId: ami-07ebfd5b3428b6f4d
       SecurityGroups:
         - Ref: WebAppSG
