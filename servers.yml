@@ -255,6 +255,44 @@ Resources:
       RouteTableId: !Ref PrivateRouteTable
       SubnetId: !Ref PrivateSubnet2 
 
+  # LoadBalancer Security Group
+  WEBLoadBalncerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: LB-WEBSG
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80 
+          ToPort: 80 
+          CidrIp: 0.0.0.0/0 
+      SecurityGroupEgress:
+        - IpProtocol: tcp 
+          FromPort: 80 
+          ToPort: 80 
+          CidrIp: 0.0.0.0/0
+  
+  #Web Application Server Security Group 
+  WebAppSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Web Applicaton Server Security Group 
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80 
+          ToPort: 80 
+          CidrIp: 0.0.0.0/0 
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0 
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 0
+        ToPort: 65535
+        CidrIp: 0.0.0.0/0
+
 Outputs:
   #Bonus points for useful outputs!
   VPC:
@@ -322,3 +360,15 @@ Outputs:
     Value: !Ref MyPrivateSubnet2
     Export:
       Name: !Sub ${MyEnvironmentName}-PRI-CidrBlock4
+
+  WEBLoadBalncerSG:
+    Description: A reference security group for LoadBalancer 
+    Value: !Ref WEBLoadBalncerSG 
+    Export:
+      Name: !Sub ${MyEnvironmentName}-WEBLB-SG
+
+  WebAppSG:
+    Description: A reference security group for application server
+    Value: !Ref WebAppSG 
+    Export:
+      Name: !Sub ${MyEnvironmentName}-WEBAPP-SG
