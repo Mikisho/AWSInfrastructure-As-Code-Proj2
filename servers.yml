@@ -321,8 +321,8 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
-        - Ref: PublicSubnet1
-        - Ref: PublicSubnet2
+        - Ref:  PrivateSubnet1
+        - Ref:  PrivateSubnet2
       LaunchConfigurationName: 
         Ref: WebAppLaunchConfig
       MinSize: "2"
@@ -369,7 +369,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 8
       HealthyThresholdCount: 2
-      Port: 8080
+      Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       VpcId: !Ref VPC
