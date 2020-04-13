@@ -300,10 +300,9 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
-          apt-get install awscli -y
           apt-get install apache2 -y
           cd /var/www/html 
-          aws s3 cp s3://mikias-udacity-proj2/index.html
+          echo "Udacity Demo Web Server Up and Running!" > index.html
           systemctl start apache2.service
       ImageId: ami-07ebfd5b3428b6f4d
       SecurityGroups:
