@@ -300,9 +300,10 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           apt-get update -y
+          apt-get install awscli -y
           apt-get install apache2 -y
           cd /var/www/html 
-          echo "<h2>Mikias's Udacity CloudFormation Deploy a high-avaibility web app project</h2>" > index.html
+          aws s3 cp s3://mikias-udacity-proj2/index.html
           systemctl start apache2.service
       ImageId: ami-07ebfd5b3428b6f4d
       SecurityGroups:
@@ -365,7 +366,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 8
       HealthyThresholdCount: 2
-      Port: 8080
+      Port: 80
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       VpcId: !Ref VPC
