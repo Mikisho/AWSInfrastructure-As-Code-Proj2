@@ -228,7 +228,7 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet2
 
-  PrivateRouteTable:
+  PrivateRouteTable1:
     Type: AWS::EC2::RouteTable
     DependsOn: VPC
     Properties:
@@ -236,23 +236,46 @@ Resources:
       Tags:
        - Key: Name 
          Value: !Sub ${MyEnvironmentName}-Private Routes
+  
+  PrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref  NatGatewayAZ1
 
   SubnetRouteTableAssociationPrivate1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     DependsOn:
-      - PrivateRouteTable
+      - PrivateRouteTable1
       - PrivateSubnet1
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable1
       SubnetId: !Ref PrivateSubnet1 
+  
+  PrivateRouteTable2:
+    Type: AWS::EC2::RouteTable
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC 
+      Tags:
+       - Key: Name 
+         Value: !Sub ${MyEnvironmentName}-Private Routes
+  
+  PrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref  NatGatewayAZ2
 
   SubnetRouteTableAssociationPrivate2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     DependsOn:
-      - PrivateRouteTable
+      - PrivateRouteTable2
       - PrivateSubnet2
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PrivateSubnet2 
 
   # LoadBalancer Security Group
@@ -292,23 +315,26 @@ Resources:
         FromPort: 0
         ToPort: 65535
         CidrIp: 0.0.0.0/0
-  
+
   WebAppLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       UserData:
         Fn::Base64: !Sub |
-          #!/bin/bash
-          apt-get update -y
-          apt-get install awscli -y
-          apt-get install apache2 -y
-          cd /var/www/html 
-          aws s3 cp s3://mikias-udacity-proj2/index.html
-          systemctl start apache2.service
+          #!/bin/bash -xe
+          exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+          apt update -y
+          apt install -y apache2
+          systemctl start apache2
+          systemctl enable apache2
+          rm ../../var/www/html/index.html
+          wget -P ../../var/www/html https://mikias-udacity-proj2.s3.amazonaws.com/index.html
+
       ImageId: ami-07ebfd5b3428b6f4d
       SecurityGroups:
         - Ref: WebAppSG
       InstanceType: !Ref MyInstanceType
+      IamInstanceProfile: !Ref ProfileWithRolesForOurApp
       BlockDeviceMappings:
         - DeviceName: "/dev/sdk" 
           Ebs:
@@ -318,14 +344,19 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
-        - Ref: PrivateSubnet1
-        - Ref: PrivateSubnet2
+        - Ref:  PrivateSubnet1
+        - Ref:  PrivateSubnet2
       LaunchConfigurationName: 
         Ref: WebAppLaunchConfig
       MinSize: "2"
       MaxSize: "4" 
       TargetGroupARNs: 
         - Ref: WebAppTargetGroup
+      MetricsCollection:
+        - Granularity: '1Minute'
+          Metrics:
+            - 'GroupMinSize'
+            - 'GroupMaxSize'
 
   WebAppELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -370,8 +401,36 @@ Resources:
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       VpcId: !Ref VPC
+  
+  S3Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: S3GetPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action: 's3:Get*'
+                Resource: '*'
 
-    
+  ProfileWithRolesForOurApp:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: '/'
+      Roles:
+        - Ref: S3Role
+   
 Outputs:
   #Bonus points for useful outputs!
   VPC:
@@ -410,9 +469,9 @@ Outputs:
     Export:
       Name: !Sub ${MyEnvironmentName}-PUB-RTB
 
-  PrivateRouteTable:
+  PrivateRouteTables:
     Description: Private Route Table Created for VPC 
-    Value: !Ref PrivateRouteTable 
+    Value: !Join [",",[ !Ref PrivateRouteTable1, !Ref PrivateRouteTable2 ]]
     Export:
       Name: !Sub ${MyEnvironmentName}-PRI-RTB
 
