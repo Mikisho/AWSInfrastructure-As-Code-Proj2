@@ -247,7 +247,7 @@ Resources:
   SubnetRouteTableAssociationPrivate1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     DependsOn:
-      - PrivateRouteTable
+      - PrivateRouteTable1
       - PrivateSubnet1
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
@@ -469,9 +469,9 @@ Outputs:
     Export:
       Name: !Sub ${MyEnvironmentName}-PUB-RTB
 
-  PrivateRouteTable:
+  PrivateRouteTables:
     Description: Private Route Table Created for VPC 
-    Value: !Ref PrivateRouteTable 
+    Value: !Join [",",[ !Ref PrivateRouteTable1, !Ref PrivateRouteTable2 ]]
     Export:
       Name: !Sub ${MyEnvironmentName}-PRI-RTB
 
