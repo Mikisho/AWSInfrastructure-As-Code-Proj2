@@ -329,6 +329,11 @@ Resources:
       MaxSize: "4" 
       TargetGroupARNs: 
         - Ref: WebAppTargetGroup
+      MetricsCollection:
+        - Granularity: '1Minute'
+          Metrics:
+            - 'GroupMinSize'
+            - 'GroupMaxSize'
 
   WebAppELB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -373,13 +378,6 @@ Resources:
       Protocol: HTTP
       UnhealthyThresholdCount: 5
       VpcId: !Ref VPC
-
-  ProfileWithRolesForOurApp:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      Path: "/"
-      Roles:
-        - Ref: S3Role
   
   S3Role:
     Type: AWS::IAM::Role
@@ -393,22 +391,23 @@ Resources:
             - ec2.amazonaws.com
           Action:
           - sts:AssumeRole
-      Path: "/"
+      Path: '/'
+      Policies:
+        - PolicyName: S3GetPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: 'Allow'
+                Action: 's3:Get*'
+                Resource: '*'
 
-  S3Policy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: S3Policy
-      PolicyDocument:
-        Statement:
-        - Effect: Allow
-          Action:
-          - s3:List*
-          Resource: "*"
+  ProfileWithRolesForOurApp:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Path: '/'
       Roles:
-      - Ref: S3Role
-
-    
+        - Ref: S3Role
+   
 Outputs:
   #Bonus points for useful outputs!
   VPC:
